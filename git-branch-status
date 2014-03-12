@@ -1,0 +1,62 @@
+#!/bin/bash
+
+output=""
+current_branch_name=$(git rev-parse --abbrev-ref HEAD)
+
+branch_color=$(tput setaf 0)
+error_color=$(tput setaf 1)
+current_branch_color=$(tput setaf 2)
+head_color=$(tput setaf 4)
+remote_color=$(tput setaf 6)
+
+get_ahead_behind ()
+{
+  local color=$1
+  local from_branch=$2
+  local to_branch=$3
+
+  local ahead=$(git rev-list $to_branch..$from_branch | wc -l | tr -d ' ')
+  local behind=$(git rev-list $from_branch..$to_branch | wc -l | tr -d ' ')
+
+  if [ $behind = 0 ]; then
+    if [ $ahead = 0 ]; then
+      echo "$color[up to date with $to_branch]"
+    else
+      echo "$color[$ahead ahead of $to_branch]"
+    fi
+  else
+    if [ $ahead = 0 ]; then
+      echo "$color[$behind behind $to_branch]"
+    else
+      echo "$color[$ahead ahead and $behind behind $to_branch]"
+    fi
+  fi
+}
+
+for branch_name in $(git for-each-ref --format='%(refname:short)' refs/heads)
+do
+  remote_branch=$(git for-each-ref --format='%(upstream:short)' refs/heads/$branch_name)
+
+  if [ $branch_name = $current_branch_name ]; then
+    line="$current_branch_color $branch_name"
+    line="$line | $current_branch_color[current branch] "
+  else
+    line="$branch_color $branch_name"
+    line="$line | $(get_ahead_behind $head_color $branch_name $current_branch_name)"
+  fi
+
+  if [[ -n $remote_branch ]]; then
+    git show-ref --verify --quiet refs/remotes/$remote_branch
+    if [ $? = 0 ]; then
+      line="$line | $(get_ahead_behind $remote_color $branch_name $remote_branch)"
+    else
+      line="$line | $error_color[Upstream $remote_branch not found]"
+    fi
+  else
+    line="$line | $error_color[No upstream set]"
+  fi
+
+  output="$output\n$line"
+
+done
+echo -e $output | column -t -s '|'
