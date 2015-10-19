@@ -60,3 +60,4 @@ do
 
 done
 echo -e $output | column -t -s '|'
+echo -e "\033[0m"
