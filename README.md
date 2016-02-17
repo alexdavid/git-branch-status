@@ -7,8 +7,14 @@ Git command to give you an overview of your branches
 
 
 ## Installing
+### Using git
 ```bash
 $ git clone https://github.com/alexdavid/git-branch-status.git
-$ cd git-branch-status
-$ install git-branch-status /usr/local/bin
+$ cp git-branch-status/git-branch-status /usr/local/bin
+```
+
+### Using homebrew (OSX)
+```bash
+$ brew tap alexdavid/homebrew-tap
+$ brew install git-branch-status
 ```
