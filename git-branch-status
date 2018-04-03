@@ -3,7 +3,7 @@
 output=""
 current_branch_name=$(git rev-parse --abbrev-ref HEAD)
 
-branch_color=$(tput setaf 0)
+branch_color=$(tput sgr0)
 error_color=$(tput setaf 1)
 current_branch_color=$(tput setaf 2)
 head_color=$(tput setaf 4)
